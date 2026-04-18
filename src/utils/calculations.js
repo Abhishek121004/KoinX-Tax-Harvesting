@@ -1,4 +1,5 @@
 export const calculateNet = (profits, losses) => profits - losses;
+const INR_TO_USD = 0.012; 
 
 export const calculateRealised = (stcg, ltcg) =>
   calculateNet(stcg.profits, stcg.losses) + calculateNet(ltcg.profits, ltcg.losses);
@@ -24,20 +25,20 @@ export const applyHarvesting = (base, selectedHoldings) => {
 };
 
 export const formatCurrency = (value) =>
-  new Intl.NumberFormat("en-IN", {
+  new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "INR",
+    currency: "USD",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(value * INR_TO_USD);
 
 export const formatCompactCurrency = (value) =>
-  new Intl.NumberFormat("en-IN", {
+  new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "INR",
+    currency: "USD",
     notation: "compact",
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(value * INR_TO_USD);
 
 export const formatTableCurrency = (value) => {
   if (value === 0) {
@@ -50,12 +51,12 @@ export const formatTableCurrency = (value) => {
     return formatCompactCurrency(value);
   }
 
-  return new Intl.NumberFormat("en-IN", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "INR",
+    currency: "USD",
     minimumFractionDigits: absoluteValue < 1 ? 4 : 2,
     maximumFractionDigits: absoluteValue < 1 ? 4 : 2,
-  }).format(value);
+  }).format(value * INR_TO_USD);
 };
 
 export const formatAssetAmount = (amount, symbol) =>
