@@ -8,7 +8,7 @@ This project simulates real-world portfolio management by calculating **pre and 
 
 ## 📸 Demo
 
-👉 Add your deployed link here (Vercel/Netlify)
+👉 (https://koinxtaxlossharvesting.netlify.app/)
 
 ---
 
