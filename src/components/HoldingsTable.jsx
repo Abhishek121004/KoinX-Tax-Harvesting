@@ -3,28 +3,43 @@ import { useApp } from "../context/AppContext";
 import {
   formatAssetAmount,
   formatCurrency,
+  formatTableCurrency,
 } from "../utils/calculations";
 
 const sortHoldings = (holdings, direction) => {
   const multiplier = direction === "desc" ? -1 : 1;
 
   return [...holdings].sort((left, right) => {
-    if (left.shortTermGain === right.shortTermGain) {
-      return left.name.localeCompare(right.name);
+    const leftScore =
+      Math.abs(left.stcg.gain) +
+      Math.abs(left.ltcg.gain) +
+      left.totalHolding * left.currentPrice;
+    const rightScore =
+      Math.abs(right.stcg.gain) +
+      Math.abs(right.ltcg.gain) +
+      right.totalHolding * right.currentPrice;
+
+    if (leftScore === rightScore) {
+      return left.coinName.localeCompare(right.coinName);
     }
 
-    return left.shortTermGain > right.shortTermGain ? multiplier : -multiplier;
+    return leftScore > rightScore ? multiplier : -multiplier;
   });
 };
 
 export default function HoldingsTable({ holdings }) {
   const { selected, setSelected } = useApp();
   const [sortDirection, setSortDirection] = useState("desc");
+  const [showAll, setShowAll] = useState(false);
 
   const selectedSet = useMemo(() => new Set(selected), [selected]);
   const sortedHoldings = useMemo(
     () => sortHoldings(holdings, sortDirection),
     [holdings, sortDirection],
+  );
+  const visibleHoldings = useMemo(
+    () => (showAll ? sortedHoldings : sortedHoldings.slice(0, 4)),
+    [showAll, sortedHoldings],
   );
   const allSelected = holdings.length > 0 && selected.length === holdings.length;
 
@@ -61,7 +76,7 @@ export default function HoldingsTable({ holdings }) {
               </th>
               <th>Asset</th>
               <th>Holdings</th>
-              <th>Total Current Value</th>
+              <th>Current Price</th>
               <th>
                 <button
                   className="holdings-table__sort"
@@ -74,13 +89,13 @@ export default function HoldingsTable({ holdings }) {
                   Short-term
                 </button>
               </th>
-              <th>Long-Term</th>
+              <th>Long-term</th>
               <th>Amount to Sell</th>
             </tr>
           </thead>
 
           <tbody>
-            {sortedHoldings.map((holding) => {
+            {visibleHoldings.map((holding) => {
               const isSelected = selectedSet.has(holding.id);
 
               return (
@@ -95,45 +110,58 @@ export default function HoldingsTable({ holdings }) {
 
                   <td>
                     <div className="asset-cell">
-                      <div className={holding.iconClassName}>{holding.icon}</div>
+                      <img
+                        className="coin-icon"
+                        src={holding.logo}
+                        alt={`${holding.coin} logo`}
+                        loading="lazy"
+                      />
                       <div>
-                        <div className="asset-cell__name">{holding.name}</div>
-                        <div className="asset-cell__symbol">{holding.symbol}</div>
+                        <div className="asset-cell__name">{holding.coinName}</div>
+                        <div className="asset-cell__symbol">{holding.coin}</div>
                       </div>
                     </div>
                   </td>
 
                   <td>
-                    <div className="table-value">{formatAssetAmount(holding.holdings, holding.symbol)}</div>
-                    <div className="table-subvalue">{formatCurrency(holding.avgBuyPrice)}/{holding.symbol}</div>
+                    <div className="table-value">
+                      {formatAssetAmount(holding.totalHolding, holding.coin)}
+                    </div>
+                    <div className="table-subvalue">
+                      {formatCurrency(holding.averageBuyPrice)}/{holding.coin}
+                    </div>
                   </td>
 
-                  <td className="table-value">{formatCurrency(holding.holdings * holding.currentPrice)}</td>
+                  <td className="table-value">{formatCurrency(holding.currentPrice)}</td>
 
                   <td>
                     <div
                       className={`table-value ${
-                        holding.shortTermGain >= 0 ? "gain-positive" : "gain-negative"
+                        holding.stcg.gain >= 0 ? "gain-positive" : "gain-negative"
                       }`}
                     >
-                      {formatCurrency(holding.shortTermGain)}
+                      {formatTableCurrency(holding.stcg.gain)}
                     </div>
-                    <div className="table-subvalue">{formatAssetAmount(holding.holdings, holding.symbol)}</div>
+                    <div className="table-subvalue">
+                      {formatAssetAmount(holding.stcg.balance, holding.coin)}
+                    </div>
                   </td>
 
                   <td>
                     <div
                       className={`table-value ${
-                        holding.longTermGain >= 0 ? "gain-positive" : "gain-negative"
+                        holding.ltcg.gain >= 0 ? "gain-positive" : "gain-negative"
                       }`}
                     >
-                      {formatCurrency(holding.longTermGain)}
+                      {formatTableCurrency(holding.ltcg.gain)}
                     </div>
-                    <div className="table-subvalue">{(holding.holdings * 0.5724).toFixed(3)} {holding.symbol}</div>
+                    <div className="table-subvalue">
+                      {formatAssetAmount(holding.ltcg.balance, holding.coin)}
+                    </div>
                   </td>
 
                   <td className="table-value">
-                    {isSelected ? formatAssetAmount(holding.holdings, holding.symbol) : "-"}
+                    {isSelected ? formatAssetAmount(holding.totalHolding, holding.coin) : "-"}
                   </td>
                 </tr>
               );
@@ -142,9 +170,15 @@ export default function HoldingsTable({ holdings }) {
         </table>
       </div>
 
-      <button className="holdings-panel__view-all" type="button">
-        View all
-      </button>
+      {!showAll && sortedHoldings.length > 4 ? (
+        <button
+          className="holdings-panel__view-all"
+          type="button"
+          onClick={() => setShowAll(true)}
+        >
+          View all
+        </button>
+      ) : null}
     </section>
   );
 }

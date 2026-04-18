@@ -7,7 +7,7 @@ const AppContext = createContext(null);
 export const AppProvider = ({ children }) => {
   const [holdings, setHoldings] = useState([]);
   const [gains, setGains] = useState(null);
-  const [selected, setSelected] = useState(["eth"]);
+  const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -15,7 +15,7 @@ export const AppProvider = ({ children }) => {
     Promise.all([fetchHoldings(), fetchCapitalGains()])
       .then(([nextHoldings, nextGains]) => {
         setHoldings(nextHoldings);
-        setGains(nextGains);
+        setGains(nextGains.capitalGains);
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));

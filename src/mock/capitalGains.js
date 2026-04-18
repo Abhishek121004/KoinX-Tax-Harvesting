@@ -1,15 +1,17 @@
-const capitalGains = {
-  stcg: {
-    profits: 4049.48,
-    losses: 32127.03,
-  },
-  ltcg: {
-    profits: 0,
-    losses: 0,
+const capitalGainsResponse = {
+  capitalGains: {
+    stcg: {
+      profits: 70200.88,
+      losses: 1548.53,
+    },
+    ltcg: {
+      profits: 5020,
+      losses: 3050,
+    },
   },
 };
 
 export const fetchCapitalGains = () =>
   new Promise((resolve) => {
-    setTimeout(() => resolve(capitalGains), 300);
+    setTimeout(() => resolve(capitalGainsResponse), 300);
   });

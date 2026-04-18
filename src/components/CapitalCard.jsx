@@ -28,8 +28,8 @@ export default function CapitalCard({ title, data, accent, totalLabel, helperTex
 
       <div className="capital-card__grid">
         <div>Losses</div>
-        <div>{formatCurrency(-data.stcg.losses)}</div>
-        <div>{formatCurrency(-data.ltcg.losses)}</div>
+        <div>{formatCurrency(data.stcg.losses)}</div>
+        <div>{formatCurrency(data.ltcg.losses)}</div>
       </div>
 
       <div className="capital-card__grid capital-card__grid--strong">
@@ -43,7 +43,12 @@ export default function CapitalCard({ title, data, accent, totalLabel, helperTex
         <strong>{formatCurrency(total)}</strong>
       </div>
 
-      {helperText ? <p className="capital-card__helper">{helperText}</p> : null}
+      {helperText ? (
+        <p className="capital-card__helper">
+          <span className="capital-card__helper-icon">+</span>
+          <span>{helperText}</span>
+        </p>
+      ) : null}
     </section>
   );
 }

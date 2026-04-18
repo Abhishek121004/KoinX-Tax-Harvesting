@@ -3,7 +3,11 @@ import CapitalCard from "./components/CapitalCard";
 import HoldingsTable from "./components/HoldingsTable";
 import NotesAccordion from "./components/NotesAccordion";
 import { useApp } from "./context/AppContext";
-import { applyHarvesting, calculateRealised, formatCurrency } from "./utils/calculations";
+import {
+  applyHarvesting,
+  calculateRealised,
+  formatCompactCurrency,
+} from "./utils/calculations";
 
 export default function App() {
   const { holdings, gains, selected, loading, error } = useApp();
@@ -58,8 +62,8 @@ export default function App() {
               accent="blue"
               totalLabel="Effective Capital Gains:"
               helperText={
-                selectedHoldings.length
-                  ? `You are going to save upto ${formatCurrency(delta)}`
+                before > after
+                  ? `You are going to save upto ${formatCompactCurrency(delta)}`
                   : ""
               }
             />
